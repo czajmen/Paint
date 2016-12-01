@@ -1,191 +1,56 @@
-<!DOCTYPE HTML>
+﻿
+<!doctype html>
 <html>
 <head>
-    <meta name=viewport content="width=device-width, initial-scale=1">
-    <style>
-        body {
-            margin: 0px;
-            padding: 0px;
-            width: 100%;
-           height: 100%;
-        }
-        div{
-            position:absolute;
-        }
-
-
-        #paint{
-            width: 100%;
-            height: 100%;
-        }
-
-
-        table{
-            width: 100%;
-            text-align: center;
-        }
-
-        #myCanvas{
-            height: 99%;
-            width: 99%;
-            border: 1px solid black;
-        }
-
-        @media (orientation: landscape){
-
-            body {
-                width: 100%;
-                height: 100%;
-            }
-        }
-
-    </style>
+ <title>Projekt Canvas</title>
+	<meta name="description" content="Online drawing program for basic sketching on mobile platforms such as iPhone, iPad, and Android. Similar to MS Paint.">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=0" />
+	<meta name="apple-mobile-web-app-capable" content="yes"/>
+	<meta charset="utf-8" /> 
+<link rel="stylesheet" href="styl.css" type="text/css" />
 </head>
 <body>
-<table>
-    <tr>
-        <td>
-            Kolor:
-            <select onchange="change(this.value)">
+<div id="page">
+    <div class="header">
+		<a onClick="newCanvas()" class="navbtn">New</a>
+        <div class="title">Canvas</div>
+    </div>
+   <div id="paint">
+    <canvas id="myCanvas"></canvas>
+</div>
+ <div class="footer">
+	
+		<div class="case">
+			<div class="menu" title="Kolor">
+				  <select onchange="change(this.value)" class="navbtn">
                 <option value="red">Czerwony</option>
                 <option value="blue">Niebieski</option>
                 <option value="green">Zielony</option>
                 <option value="pink">Różowy</option>
+				<option value="black">Czarny</option>
+				<option value="white">Biały</option>
             </select>
-        </td>
-        <td>Grubość: <select onchange="changeThickness(this.value)">
+			</div>	
+			
+			<div class="menu" title="Grubość">
+				 <select onchange="changeThickness(this.value)" class="navbtn">
             <option value="1">Cieńki</option>
             <option value="5">Średni</option>
             <option value="10">Gruby</option>
-        </select></td>
-        <td>Wczytaj:<input type="file" id="imageLoader" name="imageLoader"/></td>
-        <td><a href="#" class="button" id="btn-download" download="my-file-name.png">Pobierz</a> </td>
+        </select>
+			</div>
+			<div class="menu" title="Pobierz swoją pracę">
+				<a href="#" class="navbtn" id="btn-download" download="my-file-name.png">Pobierz</a>
+			</div>	
+			<div class="menu" title="Wczytaj obrazek">
+				<input type="file" id="imageLoader" style="color:transparent;" onchange="this.style.color = 'black';" name="imageLoader" class="navbtn"/>
+			</div>
+				
+			<div style="clear:both"></div>
+		</div>
+    </div>
+</div> 
+<script type="text/javascript" src="skrypt.js"></script>
 
-    </tr>
-</table>
-<div id="paint">
-    <canvas id="myCanvas"></canvas>
-</div>
-<script>
-
-    var imageLoader = document.getElementById('imageLoader');
-    imageLoader.addEventListener('change', handleImage, false);
-
-    var canvas = document.getElementById('myCanvas');
-    var ctx = canvas.getContext('2d');
-
-    var painting = document.getElementById('paint');
-    var paint_style = getComputedStyle(painting);
-
-    canvas.width = parseInt(paint_style.getPropertyValue('width'));
-    canvas.height = parseInt(paint_style.getPropertyValue('height'));
-//    canvas.width= screen.width;
-//    canvas.height= screen.height*0.9;
-
-    var mouse = {x: 0, y: 0};
-
-
-    ctx.lineWidth = 3;
-    ctx.lineJoin = 'round';
-    ctx.lineCap = 'round';
-    ctx.strokeStyle = 'red';
-
- function change(color) {
-     ctx.strokeStyle = color;
- }
-
- function changeThickness(width) {
-     ctx.lineWidth = width;
- }
- function savee(){
-     alert("Zapisano");
- }
-
-
-
- //Touch events
-    canvas.addEventListener('touchstart', function(e) {
-        ctx.beginPath();
-        ctx.moveTo( e.changedTouches[0].clientX- this.offsetLeft,  e.changedTouches[0].clientY-this.offsetTop);
-    }, false);
-
-    canvas.addEventListener('touchmove', function(e){
-
-        for(var i=0; i<e.changedTouches.length; i++) {
-            ctx.lineTo(e.changedTouches[i].clientX ,e.changedTouches[i].clientY);
-            ctx.stroke();
-        }
-
-    }, false);
-
-    canvas.addEventListener("touchend", function (e) {
-        var mouseEvent = new MouseEvent("mouseup", {});
-        canvas.dispatchEvent(mouseEvent);
-    }, false);
-
-    // Prevent scrolling when touching the canvas
-    document.body.addEventListener("touchstart", function (e) {
-        if (e.target == canvas) {
-            e.preventDefault();
-        }
-    }, false);
-    document.body.addEventListener("touchend", function (e) {
-        if (e.target == canvas) {
-            e.preventDefault();
-        }
-    }, false);
-    document.body.addEventListener("touchmove", function (e) {
-        if (e.target == canvas) {
-            e.preventDefault();
-        }
-    }, false);
-
-
-    //Mouse events
-
-
-    canvas.addEventListener('mousemove', function(e) {
-        mouse.x = e.pageX - this.offsetLeft;
-        mouse.y = e.pageY - this.offsetTop;
-    }, false);
-
-    canvas.addEventListener('mousedown', function(e) {
-        ctx.beginPath();
-        ctx.moveTo(mouse.x, mouse.y);
-
-        canvas.addEventListener('mousemove', onPaint, false);
-    }, false);
-
-    canvas.addEventListener('mouseup', function() {
-        canvas.removeEventListener('mousemove', onPaint, false);
-    }, false);
-
-    var onPaint = function() {
-        ctx.lineTo(mouse.x, mouse.y);
-        ctx.stroke();
-    };
-
-    var button = document.getElementById('btn-download');
-    button.addEventListener('click', function (e) {
-        var dataURL = canvas.toDataURL('image/png');
-        button.href = dataURL;
-    });
-
-
-    function handleImage(e){
-        var reader = new FileReader();
-        reader.onload = function(event){
-            var img = new Image();
-            img.onload = function(){
-
-                ctx.drawImage(img,0,0);
-            }
-            img.src = event.target.result;
-        }
-        reader.readAsDataURL(e.target.files[0]);
-    }
-
-
-</script>
 </body>
 </html>
